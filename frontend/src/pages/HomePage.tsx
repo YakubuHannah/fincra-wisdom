@@ -108,11 +108,11 @@ const HomePage: React.FC = () => {
 
             {/* Right side icons */}
             <div className="flex items-center space-x-2 sm:space-x-3">
-              {/* AI Wisdom Button */}
+              {/* Ask Wisdom Button */}
               <button className="group flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm font-medium">
                 <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                <span className="hidden sm:inline">AI Wisdom</span>
-                <span className="sm:hidden">AI</span>
+                <span className="hidden sm:inline">Ask Wisdom</span>
+<span className="sm:hidden">Ask</span>
               </button>
 
               {/* Icons */}
@@ -413,4 +413,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage;
+export default HomePage;// Updated
