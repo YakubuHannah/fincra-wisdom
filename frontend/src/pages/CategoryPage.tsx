@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, TrendingUp, X, Sparkles, Bookmark, Bell, User, FileText, Clock, Star, TrendingDown } from 'lucide-react';
-import { Circle, Department } from '../types';
+import { Search, TrendingUp, X, Sparkles, Bookmark, Bell, User, FileText, Clock, Star, Shield } from 'lucide-react';import { Circle, Department } from '../types';
 import circleService from '../services/circleService';
 
 const CategoryPage: React.FC = () => {
@@ -114,6 +113,18 @@ const CategoryPage: React.FC = () => {
                 <span className="hidden sm:inline">Ask Wisdom</span>
 <span className="sm:hidden">Ask</span>
               </button>
+
+              {/* ADD THIS ADMIN BUTTON */}
+              <button 
+                onClick={() => navigate('/admin')}
+                className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all font-medium"
+              >
+                <Shield className="w-4 h-4" />
+                <span className="hidden sm:inline text-sm">Admin</span>
+              </button>
+
+              {/* Icons */}
+              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110"></button>
 
               {/* Icons */}
               <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110">
