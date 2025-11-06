@@ -8,6 +8,10 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
+  password: {
+    type: String,
+    required: false // Optional since Google OAuth users won't have password
+  },
   name: {
     type: String,
     required: true
@@ -28,6 +32,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin', 'superadmin'],
     default: 'user'
+  },
+  isActive: {
+    type: Boolean,
+    default: true
   },
   isBlocked: {
     type: Boolean,
@@ -56,43 +64,5 @@ userSchema.methods.isAllowedDomain = function() {
 userSchema.methods.getEmailDomain = function() {
   return this.email.split('@')[1];
 };
-
-const mongoose = require('mongoose');
-
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  name: {
-    type: String,
-    required: true
-  },
-  role: {
-    type: String,
-    enum: ['user', 'admin', 'superadmin'],
-    default: 'user'
-  },
-  department: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Department'
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  lastLogin: {
-    type: Date
-  }
-}, {
-  timestamps: true
-});
 
 module.exports = mongoose.model('User', userSchema);
