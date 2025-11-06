@@ -99,23 +99,23 @@ const AskWisdomPage: React.FC = () => {
         {/* Welcome Section - Shows when no messages */}
         {messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center animate-fade-in">
-            <div className="mb-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-600 rounded-3xl flex items-center justify-center mb-6 mx-auto shadow-lg animate-bounce-slow">
+            <div className="mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-600 rounded-3xl flex items-center justify-center mb-4 mx-auto shadow-lg animate-bounce-slow">
                 <Sparkles className="w-10 h-10 text-white" />
               </div>
-              <h1 className="text-5xl sm:text-6xl font-bold mb-4">
+              <h1 className="text-5xl sm:text-6xl font-bold mb-3">
                 <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                   Ask Wisdom
                 </span>
               </h1>
-              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">
                 What do you need to know to win today?
               </p>
             </div>
 
-            {/* Suggested Questions */}
-            <div className="w-full max-w-3xl mb-12">
-              <p className="text-sm text-gray-500 mb-4">Suggestions:</p>
+            {/* Suggested Questions - Closer */}
+            <div className="w-full max-w-3xl mb-8">
+              <p className="text-sm text-gray-500 mb-3">Suggestions:</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {suggestedQuestions.map((question, idx) => (
                   <button
