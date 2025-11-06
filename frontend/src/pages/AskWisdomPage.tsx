@@ -146,6 +146,7 @@ const AskWisdomPage: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
         ) : (
           /* Chat Messages */
           <div className="flex-1 overflow-y-auto mb-6 space-y-6">
