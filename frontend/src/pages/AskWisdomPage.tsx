@@ -115,7 +115,7 @@ const AskWisdomPage: React.FC = () => {
 
             {/* Suggested Questions */}
             <div className="w-full max-w-3xl mb-12">
-              <p className="text-sm text-gray-500 mb-4">Try asking:</p>
+              <p className="text-sm text-gray-500 mb-4">Suggestions:</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {suggestedQuestions.map((question, idx) => (
                   <button
@@ -128,25 +128,8 @@ const AskWisdomPage: React.FC = () => {
                 ))}
               </div>
             </div>
-
-            {/* Quick Stats - Much Smaller */}
-            <div className="w-full max-w-2xl">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 border border-purple-100 text-center hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/category')}>
-                  <div className="text-xl font-bold text-purple-600 mb-0.5">6</div>
-                  <div className="text-xs text-gray-600">Circles</div>
-                </div>
-                <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 border border-blue-100 text-center hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/category')}>
-                  <div className="text-xl font-bold text-blue-600 mb-0.5">27</div>
-                  <div className="text-xs text-gray-600">Departments</div>
-                </div>
-                <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 border border-green-100 text-center">
-                  <div className="text-xl font-bold text-green-600 mb-0.5">0</div>
-                  <div className="text-xs text-gray-600">Documents</div>
-                </div>
-              </div>
-            </div>
           </div>
+
         ) : (
           /* Chat Messages */
           <div className="flex-1 overflow-y-auto mb-6 space-y-6">

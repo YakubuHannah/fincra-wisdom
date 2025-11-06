@@ -4,7 +4,7 @@ import { Search, TrendingUp, X, Sparkles, Bookmark, Bell, User, FileText, Clock,
 import { Circle, Department } from '../types';
 import circleService from '../services/circleService';
 
-const HomePage: React.FC = () => {
+const CategoryPage: React.FC = () => {
   const navigate = useNavigate();
   const [circles, setCircles] = useState<Circle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -229,24 +229,24 @@ const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Quick Stats Grid - Smaller */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-12">
+        {/* Quick Stats Grid - Much Smaller Pyramid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-8">
           {/* Frequently Visited */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-md p-4 border border-purple-100 hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center mb-3">
-              <div className="p-2 bg-purple-100 rounded-lg mr-2">
-                <Clock className="w-4 h-4 text-purple-600" />
+          <div className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm p-3 border border-purple-100 hover:shadow-md transition-all duration-300">
+            <div className="flex items-center mb-2">
+              <div className="p-1.5 bg-purple-100 rounded-lg mr-2">
+                <Clock className="w-3.5 h-3.5 text-purple-600" />
               </div>
-              <h3 className="text-base font-bold text-gray-900">Frequently Visited</h3>
+              <h3 className="text-sm font-bold text-gray-900">Frequently Visited</h3>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {frequentDocs.map((doc) => (
                 <div 
                   key={doc.id}
                   className="flex items-center justify-between p-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer group"
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-gray-900 group-hover:text-purple-600 transition-colors truncate">
+                    <div className="font-medium text-xs text-gray-900 group-hover:text-purple-600 transition-colors truncate">
                       {doc.title}
                     </div>
                     <div className="text-xs text-gray-500 truncate">{doc.department}</div>
@@ -258,22 +258,22 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* Recommended Documents */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-md p-4 border border-blue-100 hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center mb-3">
-              <div className="p-2 bg-blue-100 rounded-lg mr-2">
-                <Star className="w-4 h-4 text-blue-600" />
+          <div className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm p-3 border border-blue-100 hover:shadow-md transition-all duration-300">
+            <div className="flex items-center mb-2">
+              <div className="p-1.5 bg-blue-100 rounded-lg mr-2">
+                <Star className="w-3.5 h-3.5 text-blue-600" />
               </div>
-              <h3 className="text-base font-bold text-gray-900">Recommended</h3>
+              <h3 className="text-sm font-bold text-gray-900">Recommended</h3>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {recommendedDocs.map((doc) => (
                 <div 
                   key={doc.id}
                   className="flex items-start p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer group"
                 >
-                  <FileText className="w-4 h-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                  <FileText className="w-3.5 h-3.5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+                    <div className="font-medium text-xs text-gray-900 group-hover:text-blue-600 transition-colors truncate">
                       {doc.title}
                     </div>
                     <div className="text-xs text-gray-500 mt-0.5 truncate">
@@ -286,14 +286,14 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* Top Departments */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-md p-4 border border-green-100 hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center mb-3">
-              <div className="p-2 bg-green-100 rounded-lg mr-2">
-                <TrendingUp className="w-4 h-4 text-green-600" />
+          <div className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm p-3 border border-green-100 hover:shadow-md transition-all duration-300">
+            <div className="flex items-center mb-2">
+              <div className="p-1.5 bg-green-100 rounded-lg mr-2">
+                <TrendingUp className="w-3.5 h-3.5 text-green-600" />
               </div>
-              <h3 className="text-base font-bold text-gray-900">Most Visited</h3>
+              <h3 className="text-sm font-bold text-gray-900">Most Visited</h3>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {[
                 { name: 'Sales', visits: 1234, trend: '+12%' },
                 { name: 'Remittance', visits: 987, trend: '+8%' },
@@ -304,7 +304,7 @@ const HomePage: React.FC = () => {
                   className="flex items-center justify-between p-2 bg-green-50 rounded-lg hover:bg-green-100 transition-colors cursor-pointer"
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-gray-900 truncate">{dept.name}</div>
+                    <div className="font-medium text-xs text-gray-900 truncate">{dept.name}</div>
                     <div className="text-xs text-gray-500">{dept.visits} visits</div>
                   </div>
                   <div className="text-xs font-semibold text-green-600">{dept.trend}</div>
@@ -315,32 +315,32 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Overall Stats - Even Smaller */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-md p-4 border border-purple-100 mb-8">
-          <div className="flex items-center mb-4">
-            <TrendingUp className="w-5 h-5 text-purple-600 mr-2" />
-            <h3 className="text-lg font-bold text-gray-900">Platform Overview</h3>
+        <div className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm p-3 border border-purple-100 mb-8">
+          <div className="flex items-center mb-3">
+            <TrendingUp className="w-4 h-4 text-purple-600 mr-2" />
+            <h3 className="text-base font-bold text-gray-900">Platform Overview</h3>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             <div 
               onClick={scrollToCircles}
-              className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 group hover:-translate-y-1"
+              className="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg cursor-pointer hover:shadow-md transition-all duration-300 group hover:-translate-y-1"
             >
-              <div className="text-3xl font-bold text-purple-600 group-hover:scale-110 transition-transform mb-1">
+              <div className="text-2xl font-bold text-purple-600 group-hover:scale-110 transition-transform mb-0.5">
                 {circles.length}
               </div>
               <div className="text-xs font-semibold text-gray-700">Circles</div>
             </div>
             <div 
               onClick={() => setShowAllDepartments(true)}
-              className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 group hover:-translate-y-1"
+              className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg cursor-pointer hover:shadow-md transition-all duration-300 group hover:-translate-y-1"
             >
-              <div className="text-3xl font-bold text-blue-600 group-hover:scale-110 transition-transform mb-1">
+              <div className="text-2xl font-bold text-blue-600 group-hover:scale-110 transition-transform mb-0.5">
                 {totalDepartments}
               </div>
               <div className="text-xs font-semibold text-gray-700">Departments</div>
             </div>
-            <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
-              <div className="text-3xl font-bold text-green-600 mb-1">0</div>
+            <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
+              <div className="text-2xl font-bold text-green-600 mb-0.5">0</div>
               <div className="text-xs font-semibold text-gray-700">Documents</div>
             </div>
           </div>
@@ -413,4 +413,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage;// Updated
+export default CategoryPage;// Updated
