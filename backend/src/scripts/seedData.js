@@ -61,18 +61,17 @@ const departmentsData = {
     { name: "Infosec (Information Security)", teamLead: "Franklin", description: "Information security and cybersecurity operations" }
   ],
   "commercial": [
-    { name: "Sales", teamLead: "Luke", description: "Sales operations and client acquisition" },
-    { name: "Remittance", teamLead: "Jemima", description: "Cross-border payment and remittance services" },
-    { name: "Global Payment Systems", teamLead: "Malaika", description: "International payment infrastructure" },
-    { name: "Kele", teamLead: "David", description: "Kele product management and operations" },
-    { name: "Partnerships", teamLead: "Nenye", description: "Strategic partnerships and business development" },
-    { name: "Processing", teamLead: "Ikay", description: "Payment processing operations" },
-    { name: "FX (Treasury)", teamLead: "Tosin Adinlewa", description: "Foreign exchange and treasury management" },
-    { name: "Stablecoins", teamLead: "Toju", description: "Stablecoin operations and strategy" },
-    { name: "MBC (Marketing, Branding & Communication)", teamLead: "Ellen", description: "Marketing, branding, and corporate communications" },
-    { name: "Country Manager", teamLead: "Robert", description: "Regional operations and management" },
-    { name: "Account Management", teamLead: "Temitayo", description: "Client relationship and account management" }
-  ],
+  { name: "Sales", teamLead: "Luke", description: "Sales operations and client acquisition" },
+  { name: "Remittance", teamLead: "Jemima", description: "Cross-border payment and remittance services" },
+  { name: "Global Payment Systems", teamLead: "Malaika", description: "International payment infrastructure" },
+  { name: "Kele", teamLead: "David", description: "Kele product management and operations" },
+  { name: "Partnerships", teamLead: "Nenye", description: "Strategic partnerships and business development" },
+  { name: "Processing", teamLead: "Ikay", description: "Payment processing operations" },
+  { name: "Treasury", teamLead: "Tosin Adinlewa", description: "Foreign exchange, stablecoins, and treasury management" },
+  { name: "MBC (Marketing, Branding & Communication)", teamLead: "Ellen", description: "Marketing, branding, and corporate communications" },
+  { name: "Country Manager", teamLead: "Robert", description: "Regional operations and management" },
+  { name: "Account Management", teamLead: "Temitayo", description: "Client relationship and account management" }
+],
   "operations": [
     { name: "Transaction Processing", teamLead: "Saheed", description: "Transaction processing and reconciliation" },
     { name: "Internal Audit & Control", teamLead: "Lanre", description: "Internal audit and financial controls" },
