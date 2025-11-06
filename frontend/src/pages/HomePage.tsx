@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, FileText, TrendingUp, X } from 'lucide-react';
+import { Search, FileText, TrendingUp, X, Sparkles, Bookmark, Bell } from 'lucide-react';
 import { Circle, Department } from '../types';
 import circleService from '../services/circleService';
 
@@ -62,75 +62,44 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-     <header className="bg-white shadow-sm border-b border-gray-200">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center space-x-4">
+     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex justify-between items-center h-16">
+      {/* Logo - Hidden text on mobile */}
+      <div className="flex items-center space-x-3">
         <img 
           src="/images/Fincra_coloured_full_logo.png" 
           alt="Fincra" 
-          className="h-8 w-auto"
+          className="h-8"
         />
-        <div className="border-l border-gray-300 h-8"></div>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Fincra Wisdom</h1>
-          <p className="mt-1 text-sm text-gray-600">Your Single Source of Truth</p>
-        </div>
+        <h1 className="hidden sm:block text-xl font-bold text-gray-900">
+          Fincra Wisdom
+        </h1>
       </div>
-      
-      {/* Action Icons */}
-      <div className="flex items-center space-x-6">
-        {/* Ask AI Button */}
-        <button 
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          title="Ask AI Assistant"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          <span className="font-medium">Ask AI</span>
+
+      {/* Right side icons - Adjusted spacing */}
+      <div className="flex items-center space-x-2 sm:space-x-4">
+        {/* Ask AI Button - Compact on mobile */}
+        <button className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+          <Sparkles className="w-4 h-4" />
+          <span className="hidden sm:inline">Ask AI</span>
+          <span className="sm:hidden">AI</span>
         </button>
 
-        {/* Bookmarks */}
-        <button 
-          className="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"
-          title="Bookmarks"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-          </svg>
+        {/* Icons - Smaller on mobile */}
+        <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+          <Bookmark className="w-5 h-5" />
         </button>
 
-        {/* Quick Actions */}
-        <button 
-          className="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"
-          title="Quick Actions"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </button>
-
-        {/* Notifications */}
-        <button 
-          className="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"
-          title="Notifications"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-          {/* Notification Badge */}
+        <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg relative">
+          <Bell className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
 
-        {/* User Profile */}
-        <button 
-          className="flex items-center space-x-2 p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"
-          title="Profile"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
+        <button className="p-1">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+            P
+          </div>
         </button>
       </div>
     </div>
