@@ -1,0 +1,44 @@
+{
+  "name": "fincra-knowledge-hub-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Fincra Knowledge Hub",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/scripts/seedData.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "fincra",
+    "knowledge-hub",
+    "api"
+  ],
+  "author": "Fincra",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.9.1",
+    "axios": "^1.6.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "express-session": "^1.18.2",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.6.0",
+    "mongoose": "^8.0.3",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.20.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "pdf-parse": "^1.1.1",
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2"
+  }
+}
