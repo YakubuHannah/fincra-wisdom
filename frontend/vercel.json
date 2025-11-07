@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+This tells Vercel to serve index.html for all routes, letting React Router handle the routing.
+
+---
+
+## 📂 **FILE LOCATION:**
+```
+fincra-knowledge-hub/
+├── backend/
+├── frontend/
+└── vercel.json  ← CREATE HERE
