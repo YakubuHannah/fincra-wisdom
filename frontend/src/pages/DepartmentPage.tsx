@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Upload, Sparkles, Bookmark, Bell, Clock, User } from 'lucide-react';
+import { ArrowLeft, FileText, Upload, Sparkles, Bookmark, Bell, Clock, User, Shield } from 'lucide-react';
 import { Department } from '../types';
 import departmentService from '../services/departmentService';
 
@@ -107,8 +107,6 @@ const DepartmentPage: React.FC = () => {
               </button>
 
               {/* Icons */}
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110">
-
               <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110">
                 <Bookmark className="w-5 h-5" />
               </button>
