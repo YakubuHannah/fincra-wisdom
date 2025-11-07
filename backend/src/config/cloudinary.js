@@ -14,8 +14,8 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'fincra-wisdom-documents',
-    allowed_formats: ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'md'],
     resource_type: 'raw', // Important for non-image files
+    format: 'auto', // Auto-detect file format
   }
 });
 

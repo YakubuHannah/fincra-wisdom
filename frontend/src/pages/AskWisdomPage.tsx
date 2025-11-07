@@ -103,7 +103,7 @@ const AskWisdomPage: React.FC = () => {
 
       {/* Main Content */}
       <main className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col" style={{ minHeight: 'calc(100vh - 180px)' }}>
-        
+
         {/* Welcome Section - Shows when no messages */}
         {messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center animate-fade-in">

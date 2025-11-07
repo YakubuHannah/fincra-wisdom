@@ -32,6 +32,7 @@ const circleRoutes = require('./routes/circleRoutes');
 const departmentRoutes = require('./routes/departmentRoutes');
 const authRoutes = require('./routes/authRoutes');
 const documentRoutes = require('./routes/documentRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -48,6 +49,7 @@ app.use('/api/circles', circleRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // Root route
 app.get('/', (req, res) => {
