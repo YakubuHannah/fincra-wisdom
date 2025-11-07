@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Sparkles, Bookmark, Bell, Layers, Shield, TrendingUp, FileText } from 'lucide-react';
+import { Send, Sparkles, Layers, Shield, TrendingUp, FileText } from 'lucide-react';
 
 const AskWisdomPage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,14 +12,11 @@ const AskWisdomPage: React.FC = () => {
     e.preventDefault();
     if (!query.trim()) return;
 
-    // Add user message
     const userMessage = { role: 'user' as const, content: query };
     setMessages(prev => [...prev, userMessage]);
     setQuery('');
     setIsLoading(true);
 
-    // TODO: Connect to AI backend
-    // Mock response for now
     setTimeout(() => {
       const assistantMessage = {
         role: 'assistant' as const,
@@ -39,14 +36,12 @@ const AskWisdomPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-      {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
-      {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-purple-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -82,15 +77,6 @@ const AskWisdomPage: React.FC = () => {
                 <span className="hidden sm:inline">Admin</span>
               </button>
 
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110">
-                <Bookmark className="w-5 h-5" />
-              </button>
-
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110 relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-              </button>
-
               <button className="p-1 hover:scale-110 transition-transform">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-md hover:shadow-lg transition-shadow">
                   P
@@ -101,10 +87,8 @@ const AskWisdomPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col" style={{ minHeight: 'calc(100vh - 180px)' }}>
 
-        {/* Welcome Section - Shows when no messages */}
         {messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center animate-fade-in">
             <div className="mb-6">
@@ -121,7 +105,6 @@ const AskWisdomPage: React.FC = () => {
               </p>
             </div>
 
-            {/* Suggested Questions - Closer */}
             <div className="w-full max-w-3xl mb-8">
               <p className="text-sm text-gray-500 mb-3">Suggestions:</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -139,7 +122,6 @@ const AskWisdomPage: React.FC = () => {
           </div>
 
         ) : (
-          /* Chat Messages */
           <div className="flex-1 overflow-y-auto mb-6 space-y-6">
             {messages.map((message, idx) => (
               <div
@@ -171,7 +153,6 @@ const AskWisdomPage: React.FC = () => {
           </div>
         )}
 
-        {/* Input Box - Always at bottom */}
         <div className="sticky bottom-0 pb-6">
           <form onSubmit={handleSubmit} className="relative">
             <div className="relative group">
@@ -207,7 +188,6 @@ const AskWisdomPage: React.FC = () => {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="bg-white/50 backdrop-blur-sm border-t border-purple-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <p className="text-center text-gray-600 text-xs">

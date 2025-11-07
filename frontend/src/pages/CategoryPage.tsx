@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, TrendingUp, X, Sparkles, Bookmark, Bell, User, FileText, Clock, Star, Shield, Download, Eye } from 'lucide-react';
+import { Search, TrendingUp, X, Sparkles, User, FileText, Clock, Star, Shield, Download, Eye } from 'lucide-react';
 import { Circle, Department } from '../types';
 import circleService from '../services/circleService';
 import documentService, { Document } from '../services/documentService';
@@ -23,7 +23,6 @@ const CategoryPage: React.FC = () => {
     try {
       setLoading(true);
       
-      // Fetch circles
       const circlesData = await circleService.getAllCircles();
       const updatedCircles = circlesData.map(circle => 
         circle.name === "The CEO's Office" 
@@ -32,7 +31,6 @@ const CategoryPage: React.FC = () => {
       );
       setCircles(updatedCircles);
 
-      // Fetch all documents
       const docsResponse = await documentService.getAllDocuments();
       setDocuments(docsResponse.data || []);
       
@@ -50,11 +48,26 @@ const CategoryPage: React.FC = () => {
   };
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
+  e.preventDefault();
+  if (!searchQuery.trim()) return;
+
+  // Filter documents by search query
+  const results = documents.filter(doc => 
+    doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    doc.summary?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    doc.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    doc.departmentName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Show results in a modal or navigate to search results
+  setFilteredDocuments(results);
+  scrollToResults();
+};
+
+const scrollToResults = () => {
+  const resultsSection = document.getElementById('search-results');
+  resultsSection?.scrollIntoView({ behavior: 'smooth' });
+};
 
   const scrollToCircles = () => {
     const circlesSection = document.getElementById('organizational-circles');
@@ -66,7 +79,6 @@ const CategoryPage: React.FC = () => {
     0
   );
 
-  // Group documents by department
   const documentsByDepartment = documents.reduce((acc, doc) => {
     const deptId = typeof doc.departmentId === 'string' ? doc.departmentId : doc.departmentId._id;
     if (!acc[deptId]) {
@@ -76,17 +88,14 @@ const CategoryPage: React.FC = () => {
     return acc;
   }, {} as Record<string, Document[]>);
 
-  // Get top 3 most visited documents
   const frequentDocs = [...documents]
     .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
     .slice(0, 3);
 
-  // Get 3 most recent documents
   const recommendedDocs = [...documents]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 3);
 
-  // Get top 3 departments by document count
   const departmentDocCounts = circles.flatMap(circle => 
     Array.isArray(circle.departments) 
       ? (circle.departments as Department[]).map(dept => ({
@@ -137,14 +146,12 @@ const CategoryPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-      {/* Animated Background Decoration */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
-      {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-purple-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -181,15 +188,6 @@ const CategoryPage: React.FC = () => {
                 <span className="hidden sm:inline text-sm">Admin</span>
               </button>
 
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110">
-                <Bookmark className="w-5 h-5" />
-              </button>
-
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110 relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-              </button>
-
               <button className="p-1 hover:scale-110 transition-transform">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-md hover:shadow-lg transition-shadow">
                   P
@@ -200,9 +198,7 @@ const CategoryPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Hero Section with Search */}
         <div className="mb-16 text-center">
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             Your Single Source of{' '}
@@ -239,14 +235,12 @@ const CategoryPage: React.FC = () => {
           </form>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="mb-8 bg-red-50 border-2 border-red-200 text-red-800 px-6 py-4 rounded-2xl shadow-sm animate-shake">
             {error}
           </div>
         )}
 
-        {/* Circles Grid */}
         <div className="mb-16" id="organizational-circles">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-gray-900">
@@ -293,9 +287,7 @@ const CategoryPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-8">
-          {/* Frequently Visited */}
           <div className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm p-3 border border-purple-100 hover:shadow-md transition-all duration-300">
             <div className="flex items-center mb-2">
               <div className="p-1.5 bg-purple-100 rounded-lg mr-2">
@@ -324,7 +316,6 @@ const CategoryPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Recommended Documents */}
           <div className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm p-3 border border-blue-100 hover:shadow-md transition-all duration-300">
             <div className="flex items-center mb-2">
               <div className="p-1.5 bg-blue-100 rounded-lg mr-2">
@@ -355,7 +346,6 @@ const CategoryPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Top Departments */}
           <div className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm p-3 border border-green-100 hover:shadow-md transition-all duration-300">
             <div className="flex items-center mb-2">
               <div className="p-1.5 bg-green-100 rounded-lg mr-2">
@@ -382,7 +372,6 @@ const CategoryPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Platform Overview */}
         <div className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm p-3 border border-purple-100 mb-8">
           <div className="flex items-center mb-3">
             <TrendingUp className="w-4 h-4 text-purple-600 mr-2" />
@@ -420,7 +409,6 @@ const CategoryPage: React.FC = () => {
         </div>
       </main>
 
-      {/* All Departments Modal */}
       {showAllDepartments && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] overflow-hidden shadow-2xl animate-slide-up">
@@ -477,7 +465,6 @@ const CategoryPage: React.FC = () => {
         </div>
       )}
 
-      {/* Documents Modal */}
       {showDocumentsModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-3xl max-w-6xl w-full max-h-[85vh] overflow-hidden shadow-2xl animate-slide-up">
@@ -598,7 +585,6 @@ const CategoryPage: React.FC = () => {
         </div>
       )}
 
-      {/* Footer */}
       <footer className="bg-white/50 backdrop-blur-sm border-t border-purple-100 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <p className="text-center text-gray-600 text-sm">

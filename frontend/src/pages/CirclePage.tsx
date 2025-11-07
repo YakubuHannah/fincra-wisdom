@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Users, Sparkles, Bookmark, Bell, Shield } from 'lucide-react';
+import { ArrowLeft, FileText, Users, Sparkles, Shield } from 'lucide-react';
 import { Circle, Department } from '../types';
 import circleService from '../services/circleService';
 
@@ -21,7 +21,6 @@ const CirclePage: React.FC = () => {
     try {
       setLoading(true);
       const data = await circleService.getCircleBySlug(circleSlug);
-      // Update CEO's Office to CEO Circle
       if (data.name === "The CEO's Office") {
         data.name = "CEO Circle";
       }
@@ -72,13 +71,11 @@ const CirclePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-      {/* Animated Background Decoration */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
       </div>
 
-      {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-purple-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -107,21 +104,12 @@ const CirclePage: React.FC = () => {
                 <span className="sm:hidden">Ask</span>
               </button>
 
-             <button 
+              <button 
                 onClick={() => navigate('/admin')}
                 className="flex items-center space-x-2 px-3 sm:px-4 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all font-medium"
               >
                 <Shield className="w-4 h-4" />
                 <span className="hidden sm:inline">Admin</span>
-              </button>
-
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110">
-                <Bookmark className="w-5 h-5" />
-              </button>
-
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110 relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
               </button>
 
               <button className="p-1 hover:scale-110 transition-transform">
@@ -134,9 +122,7 @@ const CirclePage: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Back Button */}
         <button
           onClick={() => navigate('/')}
           className="group flex items-center space-x-2 text-gray-600 hover:text-purple-600 mb-8 transition-all hover:-translate-x-1"
@@ -145,7 +131,6 @@ const CirclePage: React.FC = () => {
           <span className="font-medium">Back to Circles</span>
         </button>
 
-        {/* Circle Header */}
         <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-lg p-8 mb-12 border border-purple-100 animate-fade-in">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <div 
@@ -169,7 +154,6 @@ const CirclePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Departments Grid */}
         {departments.length > 0 ? (
           <>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -232,7 +216,6 @@ const CirclePage: React.FC = () => {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="bg-white/50 backdrop-blur-sm border-t border-purple-100 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <p className="text-center text-gray-600 text-sm">
