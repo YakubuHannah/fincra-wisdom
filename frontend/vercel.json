@@ -1,20 +1,14 @@
-{
+cd ~/Documents/Vibe\ Code\ Project\ Code\ Data/files/fincra-knowledge-hub/frontend
+
+# Delete the bad file
+rm vercel.json
+
+# Create a clean one
+echo '{
   "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
-}
-```
-
-This tells Vercel to serve index.html for all routes, letting React Router handle the routing.
-
----
-
-## 📂 **FILE LOCATION:**
-```
-fincra-knowledge-hub/
-├── backend/
-├── frontend/
-└── vercel.json  ← CREATE HERE
+}' > vercel.json

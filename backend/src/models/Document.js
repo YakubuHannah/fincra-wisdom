@@ -48,7 +48,10 @@ const documentSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  
+   cloudinaryPublicId: {        
+    type: String,               
+    required: false             
+  },                 
   // Content
   content: {
     type: String,
