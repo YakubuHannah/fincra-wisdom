@@ -19,7 +19,7 @@ const categorySchema = new mongoose.Schema({
   },
   icon: {
     type: String,
-    default: '📦'
+    default: '📁'
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
