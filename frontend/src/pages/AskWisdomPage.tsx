@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Sparkles, Bookmark, Bell, Layers, TrendingUp, FileText } from 'lucide-react';
+import { Send, Sparkles, Bookmark, Bell, Layers, Shield, TrendingUp, FileText } from 'lucide-react';
 
 const AskWisdomPage: React.FC = () => {
   const navigate = useNavigate();
@@ -73,41 +73,15 @@ const AskWisdomPage: React.FC = () => {
                 <Layers className="w-4 h-4" />
                 <span className="hidden sm:inline">Category</span>
               </button>
-              
-              <div className="flex items-center space-x-2 sm:space-x-4">
 
               <button 
-
-                onClick={() => navigate('/category')}
-
-                className="flex items-center space-x-2 px-3 sm:px-4 py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all font-medium"
-
-              >
-
-                <Layers className="w-4 h-4" />
-
-                <span className="hidden sm:inline">Category</span>
-
-              </button>
-
-              {/* ADD THIS ADMIN BUTTON */}
-
-              <button 
-
                 onClick={() => navigate('/admin')}
-
                 className="flex items-center space-x-2 px-3 sm:px-4 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all font-medium"
-
               >
-
                 <Shield className="w-4 h-4" />
-
                 <span className="hidden sm:inline">Admin</span>
-
               </button>
 
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110"></button>
-            
               <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110">
                 <Bookmark className="w-5 h-5" />
               </button>

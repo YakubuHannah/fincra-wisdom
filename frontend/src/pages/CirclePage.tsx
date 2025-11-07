@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Users, Sparkles, Bookmark, Bell } from 'lucide-react';
+import { ArrowLeft, FileText, Users, Sparkles, Bookmark, Bell, Shield } from 'lucide-react';
 import { Circle, Department } from '../types';
 import circleService from '../services/circleService';
 
@@ -93,27 +93,26 @@ const CirclePage: React.FC = () => {
                 className="hidden sm:block text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent cursor-pointer"
                 onClick={() => navigate('/')}
               >
-                {/* ADD THIS ADMIN BUTTON */}
-              <button 
-                onClick={() => navigate('/admin')}
-                className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all font-medium"
-              >
-                <Shield className="w-4 h-4" />
-                <span className="hidden sm:inline text-sm">Admin</span>
-              </button>
-
-              {/* Icons */}
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110">
-
                 Wisdom
               </h1>
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <button className="group flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm font-medium">
+              <button 
+                onClick={() => navigate('/')}
+                className="group flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm font-medium"
+              >
                 <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                 <span className="hidden sm:inline">Ask Wisdom</span>
                 <span className="sm:hidden">Ask</span>
+              </button>
+
+             <button 
+                onClick={() => navigate('/admin')}
+                className="flex items-center space-x-2 px-3 sm:px-4 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all font-medium"
+              >
+                <Shield className="w-4 h-4" />
+                <span className="hidden sm:inline">Admin</span>
               </button>
 
               <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110">
