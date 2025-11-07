@@ -33,6 +33,8 @@ const departmentRoutes = require('./routes/departmentRoutes');
 const authRoutes = require('./routes/authRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const aiRoutes = require('./routes/aiRoutes');
+console.log('✅ AI Routes loaded:', typeof aiRoutes, aiRoutes.stack ? 'HAS ROUTES' : 'NO ROUTES');
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -50,6 +52,8 @@ app.use('/api/departments', departmentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/ai', aiRoutes);
+console.log('✅ AI Routes registered at /api/ai');
 
 // Root route
 app.get('/', (req, res) => {
