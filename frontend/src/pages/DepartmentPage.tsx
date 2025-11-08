@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, FileText, Upload, Sparkles, Clock, User, Shield, Download, Eye, Filter, ChevronDown } from 'lucide-react';
 import { Department } from '../types';
 import departmentService from '../services/departmentService';
@@ -8,6 +8,7 @@ import documentService, { Document } from '../services/documentService';
 const DepartmentPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [department, setDepartment] = useState<Department | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
@@ -15,6 +16,7 @@ const DepartmentPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [highlightedDocId, setHighlightedDocId] = useState<string | null>(null);
 
   const categories = [
     { value: 'all', label: 'All Documents', icon: '📚' },
@@ -27,6 +29,12 @@ const DepartmentPage: React.FC = () => {
   ];
 
   const aiSuggestions: Record<string, string[]> = {
+    all: [
+      "What documents are available in this department?",
+      "Show me the most recent documents",
+      "What are the key processes in this department?",
+      "Who should I contact for more information?"
+    ],
     SOP: [
       "What are the step-by-step instructions in this SOP?",
       "Who needs to approve this process?",
@@ -81,6 +89,40 @@ const DepartmentPage: React.FC = () => {
     filterDocuments();
   }, [selectedCategory, documents]);
 
+  // Scroll to document from URL hash (from search results)
+  useEffect(() => {
+    if (documents.length > 0 && location.hash) {
+      const docId = location.hash.replace('#doc-', '');
+      if (docId) {
+        setHighlightedDocId(docId);
+        // Wait for DOM to render
+        setTimeout(() => {
+          const element = document.getElementById(`doc-${docId}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Remove highlight after 3 seconds
+            setTimeout(() => setHighlightedDocId(null), 3000);
+          }
+        }, 300);
+      }
+    }
+  }, [documents, location.hash]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showCategoryDropdown) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.category-dropdown-container')) {
+          setShowCategoryDropdown(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showCategoryDropdown]);
+
   const fetchDepartment = async (deptSlug: string) => {
     try {
       setLoading(true);
@@ -114,10 +156,28 @@ const DepartmentPage: React.FC = () => {
     }
   };
 
+  const handleViewDocument = async (doc: Document) => {
+    try {
+      // Increment view count
+      await documentService.incrementViewCount(doc._id);
+      // Open document in new tab to view (not download)
+      window.open(doc.fileUrl, '_blank');
+    } catch (err) {
+      console.error('Error viewing document:', err);
+    }
+  };
+
   const handleDownload = async (doc: Document) => {
     try {
       await documentService.incrementDownloadCount(doc._id);
-      window.open(doc.fileUrl, '_blank');
+      // Force download instead of view
+      const link = document.createElement('a');
+      link.href = doc.fileUrl;
+      link.download = doc.title;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (err) {
       console.error('Error downloading document:', err);
     }
@@ -183,7 +243,7 @@ const DepartmentPage: React.FC = () => {
   }
 
   const currentCategory = categories.find(cat => cat.value === selectedCategory);
-  const currentSuggestions = selectedCategory !== 'all' ? aiSuggestions[selectedCategory] || [] : [];
+  const currentSuggestions = aiSuggestions[selectedCategory] || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
@@ -257,26 +317,26 @@ const DepartmentPage: React.FC = () => {
           <span className="text-gray-900 font-medium">{department.name}</span>
         </div>
 
-        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-lg p-8 mb-12 border border-purple-100 animate-fade-in">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-6">
+        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-lg p-6 mb-8 border border-purple-100 animate-fade-in">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-gray-900 mb-3">{department.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{department.name}</h1>
               {department.description && (
-                <p className="text-lg text-gray-600 leading-relaxed mb-4">{department.description}</p>
+                <p className="text-base text-gray-600 leading-relaxed mb-3">{department.description}</p>
               )}
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-3">
                 {department.teamLead && (
-                  <div className="flex items-center space-x-2 px-4 py-2 bg-purple-50 rounded-xl">
-                    <User className="w-5 h-5 text-purple-600" />
-                    <span className="text-sm">
+                  <div className="flex items-center space-x-2 px-3 py-1.5 bg-purple-50 rounded-xl">
+                    <User className="w-4 h-4 text-purple-600" />
+                    <span className="text-xs">
                       <span className="text-gray-600">Lead:</span>{' '}
                       <span className="font-semibold text-gray-900">{department.teamLead}</span>
                     </span>
                   </div>
                 )}
-                <div className="flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-xl">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-semibold text-gray-900">
+                <div className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 rounded-xl">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  <span className="text-xs font-semibold text-gray-900">
                     {documents.length} Documents
                   </span>
                 </div>
@@ -285,33 +345,32 @@ const DepartmentPage: React.FC = () => {
             
             <button 
               onClick={() => navigate('/admin/documents')}
-              className="group flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all font-medium"
+              className="group flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all font-medium text-sm"
             >
-              <Upload className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+              <Upload className="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
               <span>Upload Document</span>
             </button>
           </div>
-        </div>
 
-        {documents.length > 0 && (
-          <div className="mb-8 space-y-6">
-            <div className="flex items-center justify-between bg-white/70 backdrop-blur-sm rounded-2xl shadow-md p-6 border border-purple-100">
-              <div className="flex items-center space-x-4">
-                <Filter className="w-5 h-5 text-purple-600" />
-                <span className="font-semibold text-gray-900">Filter by Category:</span>
+          {/* Filter Section - Moved here */}
+          {documents.length > 0 && (
+            <div className="flex items-center justify-between pt-4 border-t border-purple-100">
+              <div className="flex items-center space-x-3">
+                <Filter className="w-4 h-4 text-purple-600" />
+                <span className="font-semibold text-gray-900 text-sm">Filter by Category:</span>
                 
-                <div className="relative">
+                <div className="relative z-50 category-dropdown-container">
                   <button
                     onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-white border-2 border-purple-200 rounded-xl hover:border-purple-400 transition-all"
+                    className="flex items-center space-x-2 px-3 py-1.5 bg-white border-2 border-purple-200 rounded-xl hover:border-purple-400 transition-all"
                   >
-                    <span className="text-xl">{currentCategory?.icon}</span>
-                    <span className="font-medium text-gray-900">{currentCategory?.label}</span>
+                    <span className="text-lg">{currentCategory?.icon}</span>
+                    <span className="font-medium text-gray-900 text-sm">{currentCategory?.label}</span>
                     <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
                   </button>
 
                   {showCategoryDropdown && (
-                    <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-purple-100 py-2 z-50">
+                    <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border-2 border-purple-300 py-2 z-[100] max-h-44 overflow-y-auto">
                       {categories.map((cat) => {
                         const count = cat.value === 'all' 
                           ? documents.length 
@@ -341,32 +400,32 @@ const DepartmentPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="text-sm text-gray-600">
+              <div className="text-xs text-gray-600">
                 Showing <span className="font-semibold text-purple-600">{filteredDocuments.length}</span> documents
               </div>
             </div>
+          )}
+        </div>
 
-            {currentSuggestions.length > 0 && (
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl shadow-md p-6 border border-purple-200">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Sparkles className="w-5 h-5 text-purple-600" />
-                  <h3 className="font-semibold text-gray-900">AI Suggested Questions for {currentCategory?.label}</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {currentSuggestions.map((question, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleAskQuestion(question)}
-                      className="text-left px-4 py-3 bg-white rounded-xl hover:shadow-lg hover:scale-105 transition-all border border-purple-100 hover:border-purple-300 group"
-                    >
-                      <span className="text-sm text-gray-700 group-hover:text-purple-600 transition-colors">
-                        💬 {question}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+        {documents.length > 0 && currentSuggestions.length > 0 && (
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl shadow-md p-6 border border-purple-200 mb-8">
+            <div className="flex items-center space-x-2 mb-4">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              <h3 className="font-semibold text-gray-900">AI Suggested Questions for {currentCategory?.label}</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {currentSuggestions.map((question, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleAskQuestion(question)}
+                  className="text-left px-4 py-3 bg-white rounded-xl hover:shadow-lg hover:scale-105 transition-all border border-purple-100 hover:border-purple-300 group"
+                >
+                  <span className="text-sm text-gray-700 group-hover:text-purple-600 transition-colors">
+                    💬 {question}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -376,87 +435,99 @@ const DepartmentPage: React.FC = () => {
           </h2>
           
           {filteredDocuments.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredDocuments.map((doc, index) => (
                 <div
+                  id={`doc-${doc._id}`}
                   key={doc._id}
-                  className="group bg-white/70 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-purple-100 hover:border-purple-300 hover:-translate-y-2 animate-fade-in"
+                  className={`group bg-white/70 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border hover:border-purple-300 hover:-translate-y-2 animate-fade-in cursor-pointer ${
+                    highlightedDocId === doc._id 
+                      ? 'border-purple-500 border-4 ring-4 ring-purple-200' 
+                      : 'border-purple-100'
+                  }`}
                   style={{ animationDelay: `${index * 50}ms` }}
+                  onClick={() => handleViewDocument(doc)}
                 >
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="text-4xl">
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="text-3xl">
                         {getFileIcon(doc.fileType)}
                       </div>
-                      <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+                      <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
                         {doc.category}
                       </span>
                     </div>
                     
-                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-2 line-clamp-2">
+                    <h3 className="text-base font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-2 line-clamp-2">
                       {doc.title}
                     </h3>
                     
                     {doc.summary && (
-                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">
                         {doc.summary}
                       </p>
                     )}
 
                     {doc.tags && doc.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-1.5 mb-3">
                         {doc.tags.slice(0, 3).map((tag, i) => (
-                          <span key={i} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                          <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
                             #{tag}
                           </span>
                         ))}
                       </div>
                     )}
                     
-                    <div className="space-y-2 pt-4 border-t border-gray-100">
+                    <div className="space-y-1.5 pt-3 border-t border-gray-100">
                       <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center space-x-2">
-                          <Clock className="w-4 h-4" />
-                          <span>{formatDate(doc.createdAt)}</span>
+                        <div className="flex items-center space-x-1.5">
+                          <Clock className="w-3 h-3" />
+                          <span className="text-xs">{formatDate(doc.createdAt)}</span>
                         </div>
-                        <span>{formatFileSize(doc.fileSize)}</span>
+                        <span className="text-xs">{formatFileSize(doc.fileSize)}</span>
                       </div>
                       
                       <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center space-x-2">
-                          <Eye className="w-4 h-4" />
-                          <span>{doc.viewCount} views</span>
+                        <div className="flex items-center space-x-1.5">
+                          <Eye className="w-3 h-3" />
+                          <span className="text-xs">{doc.viewCount} views</span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Download className="w-4 h-4" />
-                          <span>{doc.downloadCount} downloads</span>
+                        <div className="flex items-center space-x-1.5">
+                          <Download className="w-3 h-3" />
+                          <span className="text-xs">{doc.downloadCount} downloads</span>
                         </div>
                       </div>
 
                       {doc.author && (
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <User className="w-4 h-4" />
-                          <span>By {doc.author}</span>
+                        <div className="flex items-center space-x-1.5 text-xs text-gray-500">
+                          <User className="w-3 h-3" />
+                          <span className="text-xs">By {doc.author}</span>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 px-6 py-4 flex items-center space-x-3">
+                  <div className="bg-gray-50 px-4 py-3 flex items-center space-x-2">
                     <button
-                      onClick={() => handleDownload(doc)}
-                      className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all text-sm font-medium"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewDocument(doc);
+                      }}
+                      className="flex-1 flex items-center justify-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all text-xs font-medium"
                     >
-                      <Download className="w-4 h-4" />
-                      <span>Download</span>
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>View</span>
                     </button>
                     
                     <button
-                      onClick={() => handleAskQuestion(`Tell me about ${doc.title}`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAskQuestion(`Tell me about ${doc.title}`);
+                      }}
                       className="p-2 bg-purple-100 text-purple-600 rounded-xl hover:bg-purple-200 transition-all"
                       title="Ask AI about this document"
                     >
-                      <Sparkles className="w-4 h-4" />
+                      <Sparkles className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -479,7 +550,7 @@ const DepartmentPage: React.FC = () => {
           ) : (
             <div className="text-center py-20 bg-white/70 backdrop-blur-sm rounded-2xl border-2 border-dashed border-purple-200">
               <div className="text-6xl mb-4">📄</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Documents Yet</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">No Documents Yet</h3>
               <p className="text-gray-600 mb-6">
                 Be the first to upload a document to this department.
               </p>

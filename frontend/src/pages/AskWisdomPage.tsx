@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, Sparkles, Layers, Shield, TrendingUp, FileText } from 'lucide-react';
+import { Send, Brain, Layers, Shield } from 'lucide-react';
+import aiService from '../services/aiService';
 
 const AskWisdomPage: React.FC = () => {
   const navigate = useNavigate();
@@ -9,23 +10,35 @@ const AskWisdomPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  e.preventDefault();
+  if (!query.trim()) return;
 
-    const userMessage = { role: 'user' as const, content: query };
-    setMessages(prev => [...prev, userMessage]);
-    setQuery('');
-    setIsLoading(true);
+  const userMessage = { role: 'user' as const, content: query };
+  setMessages(prev => [...prev, userMessage]);
+  const currentQuery = query;
+  setQuery('');
+  setIsLoading(true);
 
-    setTimeout(() => {
-      const assistantMessage = {
-        role: 'assistant' as const,
-        content: 'I\'m here to help you navigate Fincra\'s knowledge base! This feature will be connected to our AI system soon.'
-      };
-      setMessages(prev => [...prev, assistantMessage]);
-      setIsLoading(false);
-    }, 1000);
-  };
+  try {
+    const response = await aiService.askQuestion(currentQuery);
+    
+    const assistantMessage = {
+      role: 'assistant' as const,
+      content: response.answer
+    };
+    
+    setMessages(prev => [...prev, assistantMessage]);
+  } catch (error) {
+    console.error('Error:', error);
+    const errorMessage = {
+      role: 'assistant' as const,
+      content: 'Sorry, I encountered an error. Please try again.'
+    };
+    setMessages(prev => [...prev, errorMessage]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const suggestedQuestions = [
     "What is the remittance process for international transfers?",
@@ -91,28 +104,80 @@ const AskWisdomPage: React.FC = () => {
 
         {messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center animate-fade-in">
-            <div className="mb-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-600 rounded-3xl flex items-center justify-center mb-4 mx-auto shadow-lg animate-bounce-slow">
-                <Sparkles className="w-10 h-10 text-white" />
+            {/* Header Section */}
+            <div className="mb-4">
+              <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 via-teal-500 to-blue-600 rounded-3xl flex items-center justify-center mb-4 mx-auto overflow-hidden shadow-lg">
+                <img 
+                  src="/images/brain-wisdom.png" 
+                  alt="Wisdom Brain" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to emoji if image doesn't load
+                    e.currentTarget.style.display = 'none';
+                    const parent = e.currentTarget.parentElement;
+                    if (parent && !parent.querySelector('.brain-emoji')) {
+                      const emoji = document.createElement('div');
+                      emoji.className = 'brain-emoji text-5xl';
+                      emoji.textContent = '🧠';
+                      parent.appendChild(emoji);
+                    }
+                  }}
+                />
               </div>
               <h1 className="text-5xl sm:text-6xl font-bold mb-3">
                 <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                   Ask Wisdom
                 </span>
               </h1>
-              <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">
+              <p className="text-xl text-gray-600 mb-4">
                 What do you need to know to win today?
               </p>
             </div>
 
-            <div className="w-full max-w-3xl mb-8">
-              <p className="text-sm text-gray-500 mb-3">Suggestions:</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Chat Box - Moved immediately after heading */}
+            <div className="w-full max-w-3xl mb-4">
+              <form onSubmit={handleSubmit} className="relative">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                  <div className="relative bg-white rounded-2xl shadow-lg border-2 border-purple-100 focus-within:border-purple-300 transition-all">
+                    <textarea
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSubmit(e);
+                        }
+                      }}
+                      placeholder="Ask me anything about Fincra's processes, documents, or departments..."
+                      className="w-full px-6 py-4 pr-14 bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-gray-800 placeholder-gray-400"
+                      rows={1}
+                      style={{ minHeight: '60px', maxHeight: '200px' }}
+                    />
+                    <button
+                      type="submit"
+                      disabled={!query.trim() || isLoading}
+                      className="absolute right-3 bottom-3 p-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+                    >
+                      <Send className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  Press Enter to send, Shift + Enter for new line
+                </p>
+              </form>
+            </div>
+
+            {/* Suggestions - Smaller and tighter */}
+            <div className="w-full max-w-3xl">
+              <p className="text-xs text-gray-500 mb-3">Suggestions:</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {suggestedQuestions.map((question, idx) => (
                   <button
                     key={idx}
                     onClick={() => setQuery(question)}
-                    className="text-left p-4 bg-white/70 backdrop-blur-sm border border-purple-100 rounded-xl hover:border-purple-300 hover:shadow-md transition-all text-sm text-gray-700 hover:text-purple-600"
+                    className="text-left p-3 bg-white/70 backdrop-blur-sm border border-purple-100 rounded-xl hover:border-purple-300 hover:shadow-md transition-all text-xs text-gray-700 hover:text-purple-600"
                   >
                     {question}
                   </button>
@@ -122,70 +187,72 @@ const AskWisdomPage: React.FC = () => {
           </div>
 
         ) : (
-          <div className="flex-1 overflow-y-auto mb-6 space-y-6">
-            {messages.map((message, idx) => (
-              <div
-                key={idx}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
-              >
+          <>
+            <div className="flex-1 overflow-y-auto mb-6 space-y-6">
+              {messages.map((message, idx) => (
                 <div
-                  className={`max-w-[80%] rounded-2xl p-4 ${
-                    message.role === 'user'
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
-                      : 'bg-white/70 backdrop-blur-sm border border-purple-100 text-gray-800'
-                  }`}
+                  key={idx}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
                 >
-                  <p className="text-sm leading-relaxed">{message.content}</p>
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start animate-fade-in">
-                <div className="bg-white/70 backdrop-blur-sm border border-purple-100 rounded-2xl p-4">
-                  <div className="flex space-x-2">
-                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  <div
+                    className={`max-w-[80%] rounded-2xl p-4 ${
+                      message.role === 'user'
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
+                        : 'bg-white/70 backdrop-blur-sm border border-purple-100 text-gray-800'
+                    }`}
+                  >
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="sticky bottom-0 pb-6">
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-              <div className="relative bg-white rounded-2xl shadow-lg border-2 border-purple-100 focus-within:border-purple-300 transition-all">
-                <textarea
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }
-                  }}
-                  placeholder="Ask me anything about Fincra's processes, documents, or departments..."
-                  className="w-full px-6 py-4 pr-14 bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-gray-800 placeholder-gray-400"
-                  rows={1}
-                  style={{ minHeight: '60px', maxHeight: '200px' }}
-                />
-                <button
-                  type="submit"
-                  disabled={!query.trim() || isLoading}
-                  className="absolute right-3 bottom-3 p-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
-              </div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start animate-fade-in">
+                  <div className="bg-white/70 backdrop-blur-sm border border-purple-100 rounded-2xl p-4">
+                    <div className="flex space-x-2">
+                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-            <p className="text-xs text-gray-500 text-center mt-2">
-              Press Enter to send, Shift + Enter for new line
-            </p>
-          </form>
-        </div>
+
+            <div className="sticky bottom-0 pb-6">
+              <form onSubmit={handleSubmit} className="relative">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                  <div className="relative bg-white rounded-2xl shadow-lg border-2 border-purple-100 focus-within:border-purple-300 transition-all">
+                    <textarea
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSubmit(e);
+                        }
+                      }}
+                      placeholder="Ask me anything about Fincra's processes, documents, or departments..."
+                      className="w-full px-6 py-4 pr-14 bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-gray-800 placeholder-gray-400"
+                      rows={1}
+                      style={{ minHeight: '60px', maxHeight: '200px' }}
+                    />
+                    <button
+                      type="submit"
+                      disabled={!query.trim() || isLoading}
+                      className="absolute right-3 bottom-3 p-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+                    >
+                      <Send className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  Press Enter to send, Shift + Enter for new line
+                </p>
+              </form>
+            </div>
+          </>
+        )}
       </main>
 
       <footer className="bg-white/50 backdrop-blur-sm border-t border-purple-100">

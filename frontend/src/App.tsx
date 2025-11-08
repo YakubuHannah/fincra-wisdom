@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { AdminProvider } from './contexts/AdminContext';
-import { BookmarkProvider } from './contexts/BookmarkContext';
 import AskWisdomPage from './pages/AskWisdomPage';
 import CategoryPage from './pages/CategoryPage';
 import CirclePage from './pages/CirclePage';
@@ -19,7 +18,6 @@ function App() {
   return (
     <AuthProvider>
       <AdminProvider>
-        <BookmarkProvider>
         <Router>
           <Routes>
             {/* Public Routes */}
@@ -42,7 +40,6 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
-        </BookmarkProvider>
       </AdminProvider>
     </AuthProvider>
   );

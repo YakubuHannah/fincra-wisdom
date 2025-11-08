@@ -6,9 +6,7 @@ import {
   Users, 
   BarChart3, 
   Settings,
-  Home,
-  Bookmark,
-  Bell
+  Home
 } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
@@ -60,15 +58,6 @@ const AdminLayout: React.FC = () => {
               >
                 <Home className="w-4 h-4" />
                 <span className="hidden sm:inline text-sm">Back to Site</span>
-              </button>
-
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110">
-                <Bookmark className="w-5 h-5" />
-              </button>
-
-              <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 hover:scale-110 relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
               </button>
 
               <button className="p-1 hover:scale-110 transition-transform">
