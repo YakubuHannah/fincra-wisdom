@@ -62,11 +62,15 @@ router.post('/google', async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    // Set cookie
+    // Set cookie. For cross-site requests (frontend on a different origin) the
+    // cookie must use SameSite=None and Secure in production so the browser
+    // will include it on subsequent requests.
     res.cookie('token', authToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      // Use 'none' in production so cross-site requests (Vercel frontend ->
+      // Render API) will include the cookie. Keep 'lax' for local dev.
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
