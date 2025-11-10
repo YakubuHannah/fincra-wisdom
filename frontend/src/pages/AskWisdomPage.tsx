@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, Brain, Layers, Shield } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import aiService from '../services/aiService';
 
 const AskWisdomPage: React.FC = () => {
@@ -201,7 +202,13 @@ const AskWisdomPage: React.FC = () => {
                         : 'bg-white/70 backdrop-blur-sm border border-purple-100 text-gray-800'
                     }`}
                   >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                    {message.role === 'user' ? (
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                    ) : (
+                      <div className="text-sm leading-relaxed prose prose-sm max-w-none prose-headings:text-gray-800 prose-p:text-gray-800 prose-strong:text-gray-900 prose-code:text-purple-600 prose-code:bg-purple-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-800 prose-pre:text-gray-100 prose-a:text-purple-600 prose-ul:text-gray-800 prose-ol:text-gray-800 prose-li:text-gray-800">
+                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
