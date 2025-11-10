@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 const connectDB = require('./config/database');
 
 // Initialize express app
@@ -25,6 +26,7 @@ app.use(cors({
 }));
 app.use(express.json()); // Body parser
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // Cookie parser for JWT tokens
 app.use(morgan('dev')); // Logging
 
 // API Routes
@@ -53,6 +55,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/ai', aiRoutes);
+console.log('✅ Auth Routes registered at /api/auth');
 console.log('✅ AI Routes registered at /api/ai');
 
 // Root route
@@ -64,6 +67,10 @@ app.get('/', (req, res) => {
     endpoints: {
       circles: '/api/circles',
       departments: '/api/departments',
+      auth: '/api/auth',
+      documents: '/api/documents',
+      categories: '/api/categories',
+      ai: '/api/ai',
       health: '/api/health'
     }
   });
@@ -98,6 +105,7 @@ app.listen(PORT, () => {
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 API URL: http://localhost:${PORT}`);
   console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
+  console.log(`🔐 Auth Endpoint: http://localhost:${PORT}/api/auth`);
   console.log('═══════════════════════════════════════════════════════════');
 });
 

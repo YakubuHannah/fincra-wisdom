@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, X, Sparkles, User, FileText, Clock, Star, Shield, Download, Eye } from 'lucide-react';
 import { Circle, Department } from '../types';
+import Header from '../components/Header';
 import circleService from '../services/circleService';
 import documentService, { Document } from '../services/documentService';
 
@@ -172,49 +173,7 @@ const CategoryPage: React.FC = () => {
       </div>
 
       <header className="bg-white/80 backdrop-blur-md border-b border-purple-100 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <img 
-                src="/images/Fincra_coloured_full_logo.png" 
-                alt="Fincra" 
-                className="h-10 sm:h-12 transition-transform hover:scale-105 cursor-pointer"
-                onClick={() => navigate('/')}
-              />
-              <h1 
-                className="hidden sm:block text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent cursor-pointer"
-                onClick={() => navigate('/')}
-              >
-                Wisdom
-              </h1>
-            </div>
-
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <button 
-                onClick={() => navigate('/')}
-                className="group flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm font-medium"
-              >
-                <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                <span className="hidden sm:inline">Ask Wisdom</span>
-                <span className="sm:hidden">Ask</span>
-              </button>
-
-              <button 
-                onClick={() => navigate('/admin')}
-                className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all font-medium"
-              >
-                <Shield className="w-4 h-4" />
-                <span className="hidden sm:inline text-sm">Admin</span>
-              </button>
-
-              <button className="p-1 hover:scale-110 transition-transform">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-md hover:shadow-lg transition-shadow">
-                  P
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
+       <Header />
       </header>
 
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

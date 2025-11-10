@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  picture: {
+    type: String // Google OAuth picture field
+  },
   department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department'

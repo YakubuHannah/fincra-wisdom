@@ -1,22 +1,27 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 interface User {
-  _id: string;
+  id: string;
   email: string;
   name: string;
-  profilePicture: string;
-  department?: any;
-  circle?: any;
-  role: 'user' | 'admin' | 'superadmin';
+  picture?: string;
+  role: 'user' | 'admin';
+  department?: string;
+  circle?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isAdmin: boolean;
   login: (token: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
+  checkAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,54 +30,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
-
- useEffect(() => {
-  setLoading(false); // Just set loading to false, don't check auth
-}, []);
-
   const checkAuth = async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const response = await axios.get(`${API_URL}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setUser(response.data.user);
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        localStorage.removeItem('token');
-      }
+    try {
+      const response = await axios.get(`${API_URL}/auth/me`, {
+        withCredentials: true
+      });
+      setUser(response.data.user);
+      return response.data.user;
+    } catch (error) {
+      setUser(null);
+      return null;
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const login = async (token: string) => {
-  localStorage.setItem('token', token);
-  try {
-    const response = await axios.get(`${API_URL}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setUser(response.data.user);
-  } catch (error) {
-    console.error('Login failed:', error);
-    localStorage.removeItem('token');
-  }
-};
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+  const login = async (token: string) => {
+    try {
+      // Token is already set as cookie by backend
+      const userData = await checkAuth();
+      return userData; // Return user data for component to handle navigation
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
+      setUser(null);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   const updateUser = (userData: Partial<User>) => {
-    if (user) {
-      setUser({ ...user, ...userData });
-    }
+    setUser(prev => prev ? { ...prev, ...userData } : null);
   };
 
+  const isAdmin = user?.role === 'admin';
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, login, logout, updateUser, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );
@@ -80,8 +84,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
 };
