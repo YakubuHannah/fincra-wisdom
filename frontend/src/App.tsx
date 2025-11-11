@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './contexts/AuthContext';
@@ -17,6 +16,7 @@ import UserManagement from './pages/admin/UserManagement';
 import Analytics from './pages/admin/Analytics';
 import Settings from './pages/admin/Settings';
 import SuggestionsPage from './pages/admin/Suggestions';
+import NotificationsPage from './pages/NotificationsPage';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -36,6 +36,7 @@ function App() {
               <Route path="/circles/:slug" element={<ProtectedRoute><CirclePage /></ProtectedRoute>} />
               <Route path="/departments/:slug" element={<ProtectedRoute><DepartmentPage /></ProtectedRoute>} />
               <Route path="/setup-profile" element={<ProtectedRoute><SetupProfilePage /></ProtectedRoute>} />
+              <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
               
               {/* Admin Routes - Require Login */}
               <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
