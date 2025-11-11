@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { upload } = require('../config/cloudinary');
+const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const Document = require('../models/Document');
+const SuggestedDocument = require('../models/SuggestedDocument');
 const Department = require('../models/Department');
 const Circle = require('../models/Circle');
 
@@ -215,3 +217,115 @@ router.post('/:id/download', async (req, res) => {
 });
 
 module.exports = router;
+
+// Suggest a document (for regular users) - file will be uploaded but stored as suggestion
+router.post('/suggest', isAuthenticated, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+
+    const { title, description, circleId, departmentId, category, tags } = req.body;
+    if (!title || !circleId || !departmentId) {
+      return res.status(400).json({ success: false, message: 'Missing required fields: title, circleId, departmentId' });
+    }
+
+    const department = await Department.findById(departmentId);
+    const circle = await Circle.findById(circleId);
+    if (!department || !circle) return res.status(404).json({ success: false, message: 'Department or Circle not found' });
+
+    const fileExt = req.file.originalname.split('.').pop().toLowerCase();
+    const slug = generateSlug(title);
+
+    const suggestion = new SuggestedDocument({
+      title,
+      slug,
+      departmentId,
+      departmentName: department.name,
+      circleId,
+      circleName: circle.name,
+      fileUrl: req.file.path,
+      fileName: req.file.originalname,
+      fileType: fileExt,
+      fileSize: req.file.size,
+      cloudinaryPublicId: req.file.filename,
+      submitterId: req.user?.userId,
+      submitterEmail: req.user?.email,
+      summary: description || '',
+      category: category || 'Other'
+    });
+
+    await suggestion.save();
+
+    res.status(201).json({ success: true, message: 'Document suggested for review', data: suggestion });
+  } catch (error) {
+    console.error('Suggest upload error:', error);
+    res.status(500).json({ success: false, message: 'Failed to suggest document', error: error.message });
+  }
+});
+
+// Admin: list suggestions
+router.get('/suggestions', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const suggestions = await SuggestedDocument.find().sort({ createdAt: -1 });
+    res.json({ success: true, count: suggestions.length, data: suggestions });
+  } catch (error) {
+    console.error('Error fetching suggestions:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch suggestions', error: error.message });
+  }
+});
+
+// Admin: approve suggestion -> create Document and remove suggestion
+router.put('/suggestions/:id/approve', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const suggestion = await SuggestedDocument.findById(req.params.id);
+    if (!suggestion) return res.status(404).json({ success: false, message: 'Suggestion not found' });
+
+    // Create Document from suggestion
+    const document = new Document({
+      title: suggestion.title,
+      slug: suggestion.slug,
+      departmentId: suggestion.departmentId,
+      departmentName: suggestion.departmentName,
+      circleId: suggestion.circleId,
+      circleName: suggestion.circleName,
+      fileUrl: suggestion.fileUrl,
+      fileName: suggestion.fileName,
+      fileType: suggestion.fileType,
+      fileSize: suggestion.fileSize,
+      cloudinaryPublicId: suggestion.cloudinaryPublicId,
+      category: suggestion.category,
+      summary: suggestion.summary,
+      content: suggestion.summary,
+      author: suggestion.submitterEmail || 'Unknown'
+    });
+
+    await document.save();
+
+    // Update department doc count
+    await Department.findByIdAndUpdate(suggestion.departmentId, { $inc: { documentCount: 1 } });
+
+    // Remove suggestion
+    await suggestion.remove();
+
+    res.json({ success: true, message: 'Suggestion approved and published', data: document });
+  } catch (error) {
+    console.error('Error approving suggestion:', error);
+    res.status(500).json({ success: false, message: 'Failed to approve suggestion', error: error.message });
+  }
+});
+
+// Admin: reject suggestion
+router.put('/suggestions/:id/reject', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const suggestion = await SuggestedDocument.findById(req.params.id);
+    if (!suggestion) return res.status(404).json({ success: false, message: 'Suggestion not found' });
+
+    suggestion.status = 'rejected';
+    suggestion.adminNotes = req.body.adminNotes || '';
+    await suggestion.save();
+
+    res.json({ success: true, message: 'Suggestion rejected', data: suggestion });
+  } catch (error) {
+    console.error('Error rejecting suggestion:', error);
+    res.status(500).json({ success: false, message: 'Failed to reject suggestion', error: error.message });
+  }
+});

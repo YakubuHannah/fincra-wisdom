@@ -3,6 +3,8 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FileText, Upload, Sparkles, Clock, User, Download, Eye, Filter, ChevronDown } from 'lucide-react';
 import Header from '../components/Header';
 import DocumentViewer from '../components/DocumentViewer';
+import SuggestDocumentModal from '../components/SuggestDocumentModal';
+import { useAuth } from '../contexts/AuthContext';
 import { Department } from '../types';
 import departmentService from '../services/departmentService';
 import documentService, { Document } from '../services/documentService';
@@ -20,6 +22,8 @@ const DepartmentPage: React.FC = () => {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [highlightedDocId, setHighlightedDocId] = useState<string | null>(null);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const { user } = useAuth();
 
   const categories = [
     { value: 'all', label: 'All Documents', icon: '📚' },
@@ -288,12 +292,19 @@ const DepartmentPage: React.FC = () => {
               </div>
             </div>
             
-            <button 
-              onClick={() => navigate('/admin/documents')}
+            <button
+              onClick={() => {
+                // If admin, go to admin upload; otherwise open suggest modal
+                if (user?.role === 'admin') {
+                  navigate('/admin/documents');
+                } else {
+                  setShowSuggestModal(true);
+                }
+              }}
               className="group flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all font-medium text-sm"
             >
               <Upload className="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
-              <span>Upload Document</span>
+              <span>{user?.role === 'admin' ? 'Upload Document' : 'Suggest Document'}</span>
             </button>
           </div>
 
@@ -524,6 +535,18 @@ const DepartmentPage: React.FC = () => {
         <DocumentViewer
           document={selectedDocument}
           onClose={() => setSelectedDocument(null)}
+        />
+      )}
+      {/* Suggest Document Modal for non-admin users */}
+      {showSuggestModal && department && (
+        <SuggestDocumentModal
+          departmentId={department._id}
+          circleId={typeof department.circleId === 'string' ? department.circleId : (department.circleId as any)?._id}
+          onClose={() => setShowSuggestModal(false)}
+          onSuggested={() => {
+            // refresh documents after suggestion (optional)
+            setShowSuggestModal(false);
+          }}
         />
       )}
     </div>

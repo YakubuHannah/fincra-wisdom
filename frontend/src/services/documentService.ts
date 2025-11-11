@@ -70,6 +70,24 @@ const documentService = {
     return response.data;
   },
 
+  // Suggest a document for admin review
+  async suggestDocument(data: UploadDocumentData) {
+    const formData = new FormData();
+    formData.append('file', data.file);
+    formData.append('title', data.title);
+    formData.append('circleId', data.circleId);
+    formData.append('departmentId', data.departmentId);
+    formData.append('category', data.category);
+    if (data.description) formData.append('description', data.description);
+    if (data.author) formData.append('author', data.author);
+    if (data.tags && data.tags.length > 0) formData.append('tags', JSON.stringify(data.tags));
+
+    const response = await axios.post(`${API_BASE_URL}/documents/suggest`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+
   async getDocumentById(documentId: string) {
     const response = await axios.get(`${API_BASE_URL}/documents/${documentId}`);
     return response.data;
