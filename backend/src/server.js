@@ -36,6 +36,7 @@ const authRoutes = require('./routes/authRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 console.log('✅ AI Routes loaded:', typeof aiRoutes, aiRoutes.stack ? 'HAS ROUTES' : 'NO ROUTES');
 
 // Health check route
@@ -55,8 +56,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/notifications', notificationRoutes);
 console.log('✅ Auth Routes registered at /api/auth');
 console.log('✅ AI Routes registered at /api/ai');
+console.log('✅ Notification Routes registered at /api/notifications');
 
 // Root route
 app.get('/', (req, res) => {
