@@ -57,9 +57,8 @@ const documentService = {
     }
 
     const response = await axios.post(`${API_BASE_URL}/documents/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+      headers: { 'Content-Type': 'multipart/form-data' },
+      withCredentials: true
     });
 
     return response.data;
@@ -83,7 +82,8 @@ const documentService = {
     if (data.tags && data.tags.length > 0) formData.append('tags', JSON.stringify(data.tags));
 
     const response = await axios.post(`${API_BASE_URL}/documents/suggest`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
+      withCredentials: true
     });
     return response.data;
   },
@@ -110,26 +110,26 @@ const documentService = {
   },
 
   async incrementDownloadCount(documentId: string) {
-    const response = await axios.post(`${API_BASE_URL}/documents/${documentId}/download`);
+    const response = await axios.post(`${API_BASE_URL}/documents/${documentId}/download`, {}, { withCredentials: true });
     return response.data;
   }
 ,
 
   // Admin: get suggested documents
   async getSuggestions() {
-    const response = await axios.get(`${API_BASE_URL}/documents/suggestions`);
+    const response = await axios.get(`${API_BASE_URL}/documents/suggestions`, { withCredentials: true });
     return response.data;
   },
 
   // Admin: approve a suggestion
   async approveSuggestion(suggestionId: string) {
-    const response = await axios.put(`${API_BASE_URL}/documents/suggestions/${suggestionId}/approve`);
+    const response = await axios.put(`${API_BASE_URL}/documents/suggestions/${suggestionId}/approve`, {}, { withCredentials: true });
     return response.data;
   },
 
   // Admin: reject a suggestion with optional admin notes
   async rejectSuggestion(suggestionId: string, adminNotes?: string) {
-    const response = await axios.put(`${API_BASE_URL}/documents/suggestions/${suggestionId}/reject`, { adminNotes });
+    const response = await axios.put(`${API_BASE_URL}/documents/suggestions/${suggestionId}/reject`, { adminNotes }, { withCredentials: true });
     return response.data;
   }
 };
