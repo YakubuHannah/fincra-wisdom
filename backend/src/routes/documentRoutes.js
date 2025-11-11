@@ -225,6 +225,12 @@ module.exports = router;
 // Suggest a document (for regular users) - file will be uploaded but stored as suggestion
 router.post('/suggest', isAuthenticated, upload.single('file'), async (req, res) => {
   try {
+    // Debugging: log whether token cookie or auth header is present when request hits this endpoint
+    try {
+      console.log('[/documents/suggest] cookie token present:', !!req.cookies?.token, 'auth header present:', !!req.headers.authorization);
+    } catch (e) {
+      console.error('Error logging auth presence:', e);
+    }
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
 
     const { title, description, circleId, departmentId, category, tags } = req.body;
