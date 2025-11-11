@@ -75,6 +75,12 @@ const documentService = {
     return response.data;
   },
 
+  // Increment view count by fetching the document (backend increments on GET)
+  async incrementViewCount(documentId: string) {
+    const response = await axios.get(`${API_BASE_URL}/documents/${documentId}`);
+    return response.data;
+  },
+
   async getAllDocuments(filters?: {
     circleId?: string;
     departmentId?: string;
