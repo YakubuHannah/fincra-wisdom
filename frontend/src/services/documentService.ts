@@ -57,7 +57,6 @@ const documentService = {
     }
 
     const response = await axios.post(`${API_BASE_URL}/documents/upload`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
       withCredentials: true
     });
 
@@ -82,7 +81,6 @@ const documentService = {
     if (data.tags && data.tags.length > 0) formData.append('tags', JSON.stringify(data.tags));
 
     const response = await axios.post(`${API_BASE_URL}/documents/suggest`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
       withCredentials: true
     });
     return response.data;
