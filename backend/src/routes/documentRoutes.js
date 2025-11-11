@@ -4,6 +4,10 @@ const { upload } = require('../config/cloudinary');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const Document = require('../models/Document');
 const SuggestedDocument = require('../models/SuggestedDocument');
+const Notification = require('../models/Notification');
+const { cloudinary } = require('../config/cloudinary');
+const { sendMail } = require('../utils/mail');
+const ADMIN_EMAILS = require('../config/adminEmails');
 const Department = require('../models/Department');
 const Circle = require('../models/Circle');
 
@@ -255,6 +259,29 @@ router.post('/suggest', isAuthenticated, upload.single('file'), async (req, res)
 
     await suggestion.save();
 
+    // Create in-app notification for admins
+    try {
+      for (const adminEmail of ADMIN_EMAILS) {
+        await Notification.create({
+          recipientEmail: adminEmail,
+          title: 'New document suggestion',
+          message: `${suggestion.submitterEmail || 'A user'} suggested ${suggestion.title} for ${suggestion.departmentName}`,
+          link: `/admin/suggestions`
+        });
+      }
+    } catch (err) {
+      console.error('Failed to create admin notifications:', err);
+    }
+
+    // Send emails to admins
+    try {
+      const subject = `New document suggestion: ${suggestion.title}`;
+      const html = `<p>${suggestion.submitterEmail || 'A user'} suggested <strong>${suggestion.title}</strong> for <strong>${suggestion.departmentName}</strong>.</p><p><a href="${process.env.FRONTEND_URL}/admin/suggestions">Review suggestion</a></p>`;
+      await sendMail({ to: ADMIN_EMAILS.join(','), subject, html, text: `${suggestion.submitterEmail || 'A user'} suggested ${suggestion.title} for ${suggestion.departmentName}.` });
+    } catch (err) {
+      console.error('Failed to send admin emails:', err);
+    }
+
     res.status(201).json({ success: true, message: 'Document suggested for review', data: suggestion });
   } catch (error) {
     console.error('Suggest upload error:', error);
@@ -279,7 +306,7 @@ router.put('/suggestions/:id/approve', isAuthenticated, isAdmin, async (req, res
     const suggestion = await SuggestedDocument.findById(req.params.id);
     if (!suggestion) return res.status(404).json({ success: false, message: 'Suggestion not found' });
 
-    // Create Document from suggestion
+  // Create Document from suggestion
     const document = new Document({
       title: suggestion.title,
       slug: suggestion.slug,
@@ -306,6 +333,26 @@ router.put('/suggestions/:id/approve', isAuthenticated, isAdmin, async (req, res
     // Remove suggestion
     await suggestion.remove();
 
+    // Notify submitter via in-app notification and email
+    try {
+      if (document.author) {
+        await Notification.create({
+          recipientEmail: document.author,
+          title: 'Your document suggestion was approved',
+          message: `${document.title} has been approved and published to ${document.departmentName}`,
+          link: `/departments/${document.departmentId}`
+        });
+      }
+
+      if (suggestion.submitterEmail) {
+        const subject = `Your document suggestion was approved: ${document.title}`;
+        const html = `<p>Your suggestion <strong>${document.title}</strong> has been approved and published to <strong>${document.departmentName}</strong>.</p><p><a href="${process.env.FRONTEND_URL}/departments/${document.departmentId}">View document</a></p>`;
+        await sendMail({ to: suggestion.submitterEmail, subject, html, text: `Your suggestion ${document.title} has been approved.` });
+      }
+    } catch (err) {
+      console.error('Failed to notify submitter on approval:', err);
+    }
+
     res.json({ success: true, message: 'Suggestion approved and published', data: document });
   } catch (error) {
     console.error('Error approving suggestion:', error);
@@ -322,6 +369,33 @@ router.put('/suggestions/:id/reject', isAuthenticated, isAdmin, async (req, res)
     suggestion.status = 'rejected';
     suggestion.adminNotes = req.body.adminNotes || '';
     await suggestion.save();
+
+    // Delete file from Cloudinary if public id exists
+    try {
+      if (suggestion.cloudinaryPublicId) {
+        await cloudinary.uploader.destroy(suggestion.cloudinaryPublicId, { resource_type: 'raw' });
+      }
+    } catch (err) {
+      console.error('Failed to delete file from Cloudinary:', err);
+    }
+
+    // Notify submitter via in-app notification and email
+    try {
+      if (suggestion.submitterEmail) {
+        await Notification.create({
+          recipientEmail: suggestion.submitterEmail,
+          title: 'Your document suggestion was rejected',
+          message: `${suggestion.title} was rejected. ${req.body.adminNotes || ''}`,
+          link: ''
+        });
+
+        const subject = `Your document suggestion was rejected: ${suggestion.title}`;
+        const html = `<p>Your suggestion <strong>${suggestion.title}</strong> has been rejected.</p><p>Notes from admin: ${req.body.adminNotes || 'No notes provided.'}</p>`;
+        await sendMail({ to: suggestion.submitterEmail, subject, html, text: `Your suggestion ${suggestion.title} has been rejected.` });
+      }
+    } catch (err) {
+      console.error('Failed to notify submitter on rejection:', err);
+    }
 
     res.json({ success: true, message: 'Suggestion rejected', data: suggestion });
   } catch (error) {

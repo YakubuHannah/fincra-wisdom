@@ -113,6 +113,25 @@ const documentService = {
     const response = await axios.post(`${API_BASE_URL}/documents/${documentId}/download`);
     return response.data;
   }
+,
+
+  // Admin: get suggested documents
+  async getSuggestions() {
+    const response = await axios.get(`${API_BASE_URL}/documents/suggestions`);
+    return response.data;
+  },
+
+  // Admin: approve a suggestion
+  async approveSuggestion(suggestionId: string) {
+    const response = await axios.put(`${API_BASE_URL}/documents/suggestions/${suggestionId}/approve`);
+    return response.data;
+  },
+
+  // Admin: reject a suggestion with optional admin notes
+  async rejectSuggestion(suggestionId: string, adminNotes?: string) {
+    const response = await axios.put(`${API_BASE_URL}/documents/suggestions/${suggestionId}/reject`, { adminNotes });
+    return response.data;
+  }
 };
 
 export default documentService;

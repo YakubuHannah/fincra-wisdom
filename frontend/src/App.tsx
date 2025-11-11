@@ -16,6 +16,7 @@ import DocumentUpload from './pages/admin/DocumentUpload';
 import UserManagement from './pages/admin/UserManagement';
 import Analytics from './pages/admin/Analytics';
 import Settings from './pages/admin/Settings';
+import SuggestionsPage from './pages/admin/Suggestions';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -40,6 +41,7 @@ function App() {
               <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="documents" element={<DocumentUpload />} />
+                <Route path="suggestions" element={<SuggestionsPage />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="settings" element={<Settings />} />
