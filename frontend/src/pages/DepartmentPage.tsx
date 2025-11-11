@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, FileText, Upload, Sparkles, Clock, User, Shield, Download, Eye, Filter, ChevronDown } from 'lucide-react';
+import { FileText, Upload, Sparkles, Clock, User, Download, Eye, Filter, ChevronDown } from 'lucide-react';
 import Header from '../components/Header';
+import DocumentViewer from '../components/DocumentViewer';
 import { Department } from '../types';
 import departmentService from '../services/departmentService';
 import documentService, { Document } from '../services/documentService';
@@ -18,6 +19,7 @@ const DepartmentPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [highlightedDocId, setHighlightedDocId] = useState<string | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
 
   const categories = [
     { value: 'all', label: 'All Documents', icon: '📚' },
@@ -161,26 +163,10 @@ const DepartmentPage: React.FC = () => {
     try {
       // Increment view count
       await documentService.incrementViewCount(doc._id);
-      // Open document in new tab to view (not download)
-      window.open(doc.fileUrl, '_blank');
+      // Show document in modal viewer
+      setSelectedDocument(doc);
     } catch (err) {
       console.error('Error viewing document:', err);
-    }
-  };
-
-  const handleDownload = async (doc: Document) => {
-    try {
-      await documentService.incrementDownloadCount(doc._id);
-      // Force download instead of view
-      const link = document.createElement('a');
-      link.href = doc.fileUrl;
-      link.download = doc.title;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
-      console.error('Error downloading document:', err);
     }
   };
 
@@ -532,6 +518,14 @@ const DepartmentPage: React.FC = () => {
           </p>
         </div>
       </footer>
+
+      {/* Document Viewer Modal */}
+      {selectedDocument && (
+        <DocumentViewer
+          document={selectedDocument}
+          onClose={() => setSelectedDocument(null)}
+        />
+      )}
     </div>
   );
 };
