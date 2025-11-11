@@ -230,69 +230,94 @@ router.post('/suggest', isAuthenticated, upload.single('file'), async (req, res)
       console.log('[/documents/suggest] cookie token present:', !!req.cookies?.token, 'auth header present:', !!req.headers.authorization);
     } catch (e) {
       console.error('Error logging auth presence:', e);
-    }
-    if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
-
-    const { title, description, circleId, departmentId, category, tags } = req.body;
-    if (!title || !circleId || !departmentId) {
-      return res.status(400).json({ success: false, message: 'Missing required fields: title, circleId, departmentId' });
-    }
-
-    const department = await Department.findById(departmentId);
-    const circle = await Circle.findById(circleId);
-    if (!department || !circle) return res.status(404).json({ success: false, message: 'Department or Circle not found' });
-
-    const fileExt = req.file.originalname.split('.').pop().toLowerCase();
-    const slug = generateSlug(title);
-
-    const suggestion = new SuggestedDocument({
-      title,
-      slug,
-      departmentId,
-      departmentName: department.name,
-      circleId,
-      circleName: circle.name,
-      fileUrl: req.file.path,
-      fileName: req.file.originalname,
-      fileType: fileExt,
-      fileSize: req.file.size,
-      cloudinaryPublicId: req.file.filename,
-      submitterId: req.user?.userId,
-      submitterEmail: req.user?.email,
-      summary: description || '',
-      category: category || 'Other'
-    });
-
-    await suggestion.save();
-
-    // Create in-app notification for admins
-    try {
-      for (const adminEmail of ADMIN_EMAILS) {
-        await Notification.create({
-          recipientEmail: adminEmail,
-          title: 'New document suggestion',
-          message: `${suggestion.submitterEmail || 'A user'} suggested ${suggestion.title} for ${suggestion.departmentName}`,
-          link: `/admin/suggestions`
-        });
+    // Use the upload middleware in callback style so we can capture multer/cloudinary errors
+    upload.single('file')(req, res, async (uploadErr) => {
+      if (uploadErr) {
+        console.error('Upload middleware error on /documents/suggest:', uploadErr);
+        // Multer errors might include message property; surface that to client
+        return res.status(400).json({ success: false, message: uploadErr.message || 'File upload error' });
       }
-    } catch (err) {
-      console.error('Failed to create admin notifications:', err);
-    }
 
-    // Send emails to admins
-    try {
-      const subject = `New document suggestion: ${suggestion.title}`;
-      const html = `<p>${suggestion.submitterEmail || 'A user'} suggested <strong>${suggestion.title}</strong> for <strong>${suggestion.departmentName}</strong>.</p><p><a href="${process.env.FRONTEND_URL}/admin/suggestions">Review suggestion</a></p>`;
-      await sendMail({ to: ADMIN_EMAILS.join(','), subject, html, text: `${suggestion.submitterEmail || 'A user'} suggested ${suggestion.title} for ${suggestion.departmentName}.` });
-    } catch (err) {
-      console.error('Failed to send admin emails:', err);
-    }
+      try {
+        // Log auth presence for debugging
+        console.log('[/documents/suggest] cookie token present:', !!req.cookies?.token, 'auth header present:', !!req.headers.authorization);
 
-    res.status(201).json({ success: true, message: 'Document suggested for review', data: suggestion });
-  } catch (error) {
-    console.error('Suggest upload error:', error);
-    res.status(500).json({ success: false, message: 'Failed to suggest document', error: error.message });
-  }
+        if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+
+        const { title, description, circleId, departmentId, category, tags } = req.body;
+        if (!title || !circleId || !departmentId) {
+          return res.status(400).json({ success: false, message: 'Missing required fields: title, circleId, departmentId' });
+        }
+
+        const department = await Department.findById(departmentId);
+        const circle = await Circle.findById(circleId);
+        if (!department || !circle) return res.status(404).json({ success: false, message: 'Department or Circle not found' });
+
+        // Log file info to help debug Cloudinary/multer issues
+        try {
+          console.log('Uploaded file info:', {
+            originalname: req.file.originalname,
+            mimetype: req.file.mimetype,
+            size: req.file.size,
+            path: req.file.path,
+            filename: req.file.filename
+          });
+        } catch (fiErr) {
+          console.warn('Could not log req.file details:', fiErr);
+        }
+
+        const fileExt = req.file.originalname.split('.').pop().toLowerCase();
+        const slug = generateSlug(title);
+
+        const suggestion = new SuggestedDocument({
+          title,
+          slug,
+          departmentId,
+          departmentName: department.name,
+          circleId,
+          circleName: circle.name,
+          fileUrl: req.file.path,
+          fileName: req.file.originalname,
+          fileType: fileExt,
+          fileSize: req.file.size,
+          cloudinaryPublicId: req.file.filename,
+          submitterId: req.user?.userId,
+          submitterEmail: req.user?.email,
+          summary: description || '',
+          category: category || 'Other'
+        });
+
+        await suggestion.save();
+
+        // Create in-app notification for admins
+        try {
+          for (const adminEmail of ADMIN_EMAILS) {
+            await Notification.create({
+              recipientEmail: adminEmail,
+              title: 'New document suggestion',
+              message: `${suggestion.submitterEmail || 'A user'} suggested ${suggestion.title} for ${suggestion.departmentName}`,
+              link: `/admin/suggestions`
+            });
+          }
+        } catch (err) {
+          console.error('Failed to create admin notifications:', err);
+        }
+
+        // Send emails to admins
+        try {
+          const subject = `New document suggestion: ${suggestion.title}`;
+          const html = `<p>${suggestion.submitterEmail || 'A user'} suggested <strong>${suggestion.title}</strong> for <strong>${suggestion.departmentName}</strong>.</p><p><a href="${process.env.FRONTEND_URL}/admin/suggestions">Review suggestion</a></p>`;
+          await sendMail({ to: ADMIN_EMAILS.join(','), subject, html, text: `${suggestion.submitterEmail || 'A user'} suggested ${suggestion.title} for ${suggestion.departmentName}.` });
+        } catch (err) {
+          console.error('Failed to send admin emails:', err);
+        }
+
+        res.status(201).json({ success: true, message: 'Document suggested for review', data: suggestion });
+      } catch (error) {
+        console.error('Suggest upload error:', error);
+        res.status(500).json({ success: false, message: 'Failed to suggest document', error: error.message });
+      }
+    });
 });
 
 // Admin: list suggestions
