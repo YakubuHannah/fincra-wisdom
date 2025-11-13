@@ -99,17 +99,19 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log('═══════════════════════════════════════════════════════════');
-  console.log('🚀 Fincra Knowledge Hub API Server');
-  console.log('═══════════════════════════════════════════════════════════');
-  console.log(`📡 Server running on port ${PORT}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 API URL: http://localhost:${PORT}`);
-  console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`🔐 Auth Endpoint: http://localhost:${PORT}/api/auth`);
-  console.log('═══════════════════════════════════════════════════════════');
-});
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('🚀 Fincra Knowledge Hub API Server');
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log(`📡 Server running on port ${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 API URL: http://localhost:${PORT}`);
+    console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
+    console.log(`🔐 Auth Endpoint: http://localhost:${PORT}/api/auth`);
+    console.log('═══════════════════════════════════════════════════════════');
+  });
+}
 
 module.exports = app;
