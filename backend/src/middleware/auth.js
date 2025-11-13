@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const { getJwtSecret } = require('../config/jwt');
 
 // Middleware to check if user is authenticated
 const isAuthenticated = (req, res, next) => {
@@ -13,7 +12,7 @@ const isAuthenticated = (req, res, next) => {
     }
 
     // Verify token
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, getJwtSecret());
     req.user = decoded;
     next();
   } catch (error) {
@@ -30,7 +29,7 @@ const isAdmin = (req, res, next) => {
       return res.status(401).json({ error: 'Not authenticated. Please log in.' });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, getJwtSecret());
     
     if (decoded.role !== 'admin') {
       return res.status(403).json({ error: 'Admin access required. You do not have permission.' });

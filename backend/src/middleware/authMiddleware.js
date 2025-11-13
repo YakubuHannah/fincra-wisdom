@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { getJwtSecret } = require('../config/jwt');
 
 // Verify JWT Token
 exports.authenticate = async (req, res, next) => {
@@ -15,7 +16,7 @@ exports.authenticate = async (req, res, next) => {
     }
 
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    const decoded = jwt.verify(token, getJwtSecret());
     
     // Get user from database
     const user = await User.findById(decoded.userId);

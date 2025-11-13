@@ -1,9 +1,20 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { getJwtSecret } = require('../config/jwt');
 
 // Generate JWT Token
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET || 'your-secret-key', {
+const generateToken = (user) => {
+  const payload = {
+    userId: user._id,
+    email: user.email,
+    role: user.role
+  };
+
+  if (user.name) {
+    payload.name = user.name;
+  }
+
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: '7d'
   });
 };
@@ -54,7 +65,7 @@ exports.googleCallback = async (req, res) => {
     await user.populate('department circle');
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user);
 
     res.json({
       success: true,
@@ -207,7 +218,7 @@ exports.emailLogin = async (req, res) => {
     await user.populate('department circle');
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user);
 
     res.json({
       success: true,

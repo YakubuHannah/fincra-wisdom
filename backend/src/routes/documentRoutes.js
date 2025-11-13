@@ -10,19 +10,33 @@ const { sendMail } = require('../utils/mail');
 const ADMIN_EMAILS = require('../config/adminEmails');
 const Department = require('../models/Department');
 const Circle = require('../models/Circle');
+const { createSlug } = require('../utils/slug');
 
-// Helper function to generate slug
-const generateSlug = (title) => {
-  return title
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/--+/g, '-')
-    .trim();
+const parseTags = (tags) => {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags;
+
+  if (typeof tags === 'string') {
+    try {
+      const parsedFromJson = JSON.parse(tags);
+      if (Array.isArray(parsedFromJson)) {
+        return parsedFromJson;
+      }
+    } catch (error) {
+      // fall back to comma separated parsing
+    }
+
+    return tags
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }
+
+  return [];
 };
 
 // Upload document
-router.post('/upload', upload.single('file'), async (req, res) => {
+router.post('/upload', isAuthenticated, isAdmin, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
@@ -49,7 +63,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     const fileExt = req.file.originalname.split('.').pop().toLowerCase();
 
     // Generate slug from title
-    const slug = generateSlug(title);
+    const slug = createSlug(title);
 
     // Create searchable text for better search
     const searchableText = `${title} ${description || ''} ${tags || ''}`.toLowerCase();
@@ -70,7 +84,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
       category,
       summary: description || '',
       content: description || '',
-      tags: tags ? (Array.isArray(tags) ? tags : JSON.parse(tags)) : [],
+      tags: parseTags(tags),
       author: author || 'Unknown',
       searchableText
     });
@@ -257,7 +271,7 @@ router.post('/suggest', isAuthenticated, (req, res) => {
       }
 
       const fileExt = req.file.originalname.split('.').pop().toLowerCase();
-      const slug = generateSlug(title);
+      const slug = createSlug(title);
 
       const suggestion = new SuggestedDocument({
         title,

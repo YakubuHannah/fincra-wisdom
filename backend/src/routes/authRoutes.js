@@ -4,8 +4,9 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const ADMIN_EMAILS = require('../config/adminEmails');
+const { getJwtSecret } = require('../config/jwt');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = getJwtSecret();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Verify Google token and login/register user
